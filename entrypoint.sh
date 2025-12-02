@@ -9,7 +9,7 @@ if [[ -z $TARGET_SUBDIR_NAME ]]; then
 fi
 
 # If RUN_ON_STARTUP, then do it now
-if [[ $RUN_ON_STARTUP == "TRUE" ]]; then
+if [[ $RUN_ON_STARTUP == "true" ]]; then
     echo "Currently in startup, now performing rclone as requested..."
     /app/rclone-job.sh
 fi
@@ -19,8 +19,8 @@ fi
 if [[ -n $CRON_ARGUMENTS ]]; then
     echo "As CRON_ARGUMENTS is not blank, now creating a cronjob..."
     mkdir -p /etc/cron.d
-    CRON_JOB_LINE="$CRON_ARGUMENTS /app/rclone-job.sh"
-    echo "$CRON_JOB_LINE" >> /etc/crontabs/root
-    echo "Added \"$CRON_JOB_LINE\" to crontabs list."
+    CRON_JOB_LINE="${CRON_ARGUMENTS} /app/rclone-job.sh"
+    echo "${CRON_JOB_LINE}" >> /etc/crontabs/root
+    echo "Added \"${CRON_JOB_LINE}\" to crontabs list."
     exec crond -f -l 2
 fi

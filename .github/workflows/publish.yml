@@ -1,9 +1,9 @@
 name: Create and push image to GitHub registry
 
-on:
+on: # Only run on new version tag push
   push:
-    branches:
-      - main
+    tags:        
+      - v*
 
 env:
   REGISTRY: ghcr.io
@@ -42,6 +42,10 @@ jobs:
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
+          build-args: |
+            GIT_VERSION_TAG=${{ env.RELEASE_VERSION }}
+            GIT_COMMIT_MESSAGE=${{ github.event.head_commit.message }}
+            GIT_VERSION_HASH=${{ github.sha }}
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v3
         with:
