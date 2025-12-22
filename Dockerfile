@@ -1,4 +1,4 @@
-FROM alpine:3.23.0
+FROM alpine:3.23.2
 
 # To be passed from Github Actions
 ARG GIT_VERSION_TAG=unspecified
