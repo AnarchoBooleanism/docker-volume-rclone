@@ -15,5 +15,5 @@ do
 done
 
 printf "Finished the task of cloning all specified Docker volumes to a remote location, \
-i.e. cloning the subdirectories for each volume in \"/volumes\" to \"/volumes-clone/%s\"\!\n" \
+i.e. cloning the subdirectories for each volume in \"/volumes\" to \"/volumes-clone/%s\"!\n" \
     "${TARGET_SUBDIR_NAME}"
