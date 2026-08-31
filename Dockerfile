@@ -10,9 +10,9 @@ RUN mkdir /volumes
 WORKDIR /app
 
 # Write any Git-related info
-RUN echo $GIT_VERSION_TAG > GIT_VERSION_TAG.txt
-RUN echo $GIT_COMMIT_MESSAGE > GIT_COMMIT_MESSAGE.txt
-RUN echo $GIT_VERSION_HASH > GIT_VERSION_HASH.txt
+RUN printf "%s\n" "$GIT_VERSION_TAG" > GIT_VERSION_TAG.txt
+RUN printf "%s\n" "$GIT_COMMIT_MESSAGE" > GIT_COMMIT_MESSAGE.txt
+RUN printf "%s\n" "$GIT_VERSION_HASH" > GIT_VERSION_HASH.txt
 
 # Copy over important files
 COPY entrypoint.sh rclone-job.sh /app/
