@@ -101,10 +101,10 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=raw,value=${{ env.RELEASE_VERSION }}
-            type=semver,pattern=v{{version}}
-            type=semver,pattern=v{{major}}.{{minor}}
-            type=semver,pattern=v{{major}}
+            type=raw,value=${{ github.event.release.tag_name }}
+            type=semver,pattern=v{{version}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern=v{{major}}.{{minor}},value=${{ github.event.release.tag_name }}
+            type=semver,pattern=v{{major}},value=${{ github.event.release.tag_name }}
           flavor: |
             latest=auto
       - name: Create manifest list and push
