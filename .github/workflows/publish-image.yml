@@ -75,7 +75,7 @@ jobs:
         uses: actions/download-artifact@v8
         with:
           path: ${{ runner.temp }}/oci-images
-          pattern: oci-image-*.tar
+          pattern: oci-image-*
           merge-multiple: true
       - name: Log into GitHub Container Registry
         uses: docker/login-action@v4
@@ -100,11 +100,10 @@ jobs:
             latest=${{ !github.event.release.prerelease }}
       - name: Create manifest list and push
         id: push
-        working-directory: ${{ runner.temp }}/oci-images
         run: |
           IMAGE_NAME_LOWER=${IMAGE_NAME,,}
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "oci-layout://%s " *)
+            $(printf "oci-layout://%s " "${{ runner.temp }}/oci-images/oci-image-*.tar")
           
           digest=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}:${{ steps.meta.outputs.version }})
           printf "digest=%s\n" "$digest" >> $GITHUB_ENV
