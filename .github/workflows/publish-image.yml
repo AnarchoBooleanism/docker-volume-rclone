@@ -44,14 +44,14 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           flavor: |
             latest=false
-      - name: Build and export OCI tarball image
+      - name: Build and push Docker image
         id: push
         uses: docker/build-push-action@v7
         with:
           context: .
           file: ./Dockerfile
+          push: true
           platforms: linux/${{ matrix.architecture }}
-          outputs: type=oci,dest=${{ runner.temp }}/oci-image-${{ matrix.architecture }}.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
@@ -60,22 +60,27 @@ jobs:
           # We want BuildKit attestation
           provenance: true
           sbom: true
-      - name: Upload OCI tarball image
+      - name: Export digest
+        run: |
+          mkdir -p ${{ runner.temp }}/digests
+          digest="${{ steps.push.outputs.digest }}"
+          touch "${{ runner.temp }}/digests/${digest#sha256:}"
+      - name: Upload digest
         uses: actions/upload-artifact@v7
         with:
-          name: oci-image-${{ matrix.architecture }}
-          path: ${{ runner.temp }}/oci-image-${{ matrix.architecture }}.tar
+          name: digests-linux-${{ matrix.architecture }}
+          path: ${{ runner.temp }}/digests/*
           if-no-files-found: error
           retention-days: 1
   merge:
     needs: build
     runs-on: ubuntu-24.04
     steps:
-      - name: Download OCI tarball images
+      - name: Download Digests
         uses: actions/download-artifact@v8
         with:
-          path: ${{ runner.temp }}/oci-images
-          pattern: oci-image-*
+          path: ${{ runner.temp }}/digests
+          pattern: digests-*
           merge-multiple: true
       - name: Log into GitHub Container Registry
         uses: docker/login-action@v4
@@ -100,19 +105,15 @@ jobs:
             latest=${{ !github.event.release.prerelease }}
       - name: Create manifest list and push
         id: push
-        working-directory: ${{ runner.temp }}/oci-images
+        working-directory: ${{ runner.temp }}/digests
         run: |
           IMAGE_NAME_LOWER=${IMAGE_NAME,,}
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
-            $(printf "oci-layout://%s " oci-image-*.tar)
+            $(printf "${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}@sha256:%s " *)
           
           digest=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}:${{ steps.meta.outputs.version }})
           printf "digest=%s\n" "$digest" >> $GITHUB_ENV
           printf "Digest is: %s\n" "$digest"
-      - name: Inspect Image
-        run: |
-          IMAGE_NAME_LOWER=${IMAGE_NAME,,}
-          docker buildx imagetools inspect ${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}:${{ steps.meta.outputs.version }}
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v4
         with:
