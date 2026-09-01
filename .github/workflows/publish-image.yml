@@ -53,12 +53,8 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            GIT_VERSION_TAG=${{ env.RELEASE_VERSION }}
+            GIT_VERSION_TAG=${{ github.event.release.tag_name }}
             GIT_VERSION_HASH=${{ github.sha }}
-          # build-args: |
-          #   GIT_VERSION_TAG=${{ env.RELEASE_VERSION }}
-          #   GIT_COMMIT_MESSAGE=${{ github.event.head_commit.message }}
-          #   GIT_VERSION_HASH=${{ github.sha }}
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v4
         with:
@@ -105,8 +101,9 @@ jobs:
             type=semver,pattern=v{{version}},value=${{ github.event.release.tag_name }}
             type=semver,pattern=v{{major}}.{{minor}},value=${{ github.event.release.tag_name }}
             type=semver,pattern=v{{major}},value=${{ github.event.release.tag_name }}
+          # Assumption is that we only publish tags for latest major, minor releases
           flavor: |
-            latest=auto
+            latest=${{ !github.event.release.prerelease }}
       - name: Create manifest list and push
         working-directory: ${{ runner.temp }}/digests
         run: |
