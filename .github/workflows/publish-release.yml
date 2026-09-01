@@ -26,7 +26,8 @@ jobs:
       - name: Create GitHub Release notification summary
         run: |
           printf "# 🎉 Release ready!\n\n" >> $GITHUB_STEP_SUMMARY
-          printf "The link to the release (ID **%s**) is: %s\n\n" \
+          printf "The link to the release (tag **%s**, ID **%s**) is: %s\n\n" \
+            "${{ github.ref_name }}" \
             "${{ steps.create-release.outputs.id }}" \
             "${{ steps.create-release.outputs.url }}" \
             >> $GITHUB_STEP_SUMMARY
