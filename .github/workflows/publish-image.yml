@@ -108,14 +108,19 @@ jobs:
         run: |
           IMAGE_NAME_LOWER=${IMAGE_NAME,,}
 
-          read -r -a TAG_ARGS <<< "$(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON")"
+          mapfile -t tags <<< "$DOCKER_METADATA_OUTPUT_TAGS"
+          TAG_ARGS=()
+          for tag in "${tags[@]}"; do
+            [[ -n "$tag" ]] && TAG_ARGS+=(-t "$tag")
+          done
 
           # Doing it this way to be very careful with space breaks
+          mapfile -t annotations <<< "$DOCKER_METADATA_OUTPUT_LABELS"
           ANNOTATION_ARGS=()
-          while IFS= read -r annotation; do
-            [[ -n "$annotation" ]] && ANNOTATION_ARGS+=(--annotation "index:${annotation}")
-          done < <(jq -cr '.labels | to_entries | map(.key + "=" + .value)[]' <<< "$DOCKER_METADATA_OUTPUT_JSON")
-
+          for annotation in "${annotations[@]}"; do
+            [[ -n "$annotation" ]] && ANNOTATION_ARGS+=(--annotation "$annotation")
+          done
+          
           DIGEST_TARGETS=()
           for file in *; do
             [[ -f "$file" ]] && DIGEST_TARGETS+=("${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}@sha256:${file}")
