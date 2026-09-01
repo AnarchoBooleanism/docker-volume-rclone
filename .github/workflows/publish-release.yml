@@ -25,11 +25,14 @@ jobs:
           generate_release_notes: true
       - name: Create GitHub Release notification summary
         run: |
-          printf "## Release ready!\n\n" >> $GITHUB_STEP_SUMMARY
-          printf "The link to the release (%s) is: %s\n\n" \
+          printf "# 🎉 Release ready!\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "The link to the release (ID **%s**) is: %s\n\n" \
             "${{ steps.create-release.outputs.id }}" \
             "${{ steps.create-release.outputs.url }}" \
             >> $GITHUB_STEP_SUMMARY
           printf "In order for the Docker build and push workflow to commence, \
-          you will need to publish the release.\n" \
+          you will need to publish the release.\n\n" \
+            >> $GITHUB_STEP_SUMMARY
+          printf "Generated at: %s\n" \
+            "$(date -u +"%Y-%m-%d %H:%M:%S UTC")" \
             >> $GITHUB_STEP_SUMMARY
