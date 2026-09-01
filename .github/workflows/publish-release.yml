@@ -18,7 +18,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v7
       - name: Create GitHub Release
+        id: create-release
         uses: softprops/action-gh-release@v3
         with:
           draft: true
           generate_release_notes: true
+      - name: Create GitHub Release notification summary
+        run: |
+          printf "## Release ready!\n\n" >> $GITHUB_STEP_SUMMARY
+          printf "The link to the release (%s) is: %s\n\n" \
+            "${{ steps.create-release.outputs.id }}"
+            "${{ steps.create-release.outputs.url }}" \
+            >> $GITHUB_STEP_SUMMARY
+          printf "In order for the Docker build and push workflow to commence, \
+          you will need to publish the release.\n" \
+            >> $GITHUB_STEP_SUMMARY
