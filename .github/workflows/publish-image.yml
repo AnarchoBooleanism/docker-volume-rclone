@@ -47,7 +47,9 @@ jobs:
         with:
           context: .
           file: ./Dockerfile
-          outputs: type=registry,name=${{ env.IMAGE_NAME_FULL }},push-by-digest=true
+          # We want to avoid polluting the registry with too many arch-specific tags
+          # We also want to be able to have descriptions
+          outputs: type=registry,name=${{ env.IMAGE_NAME_FULL }},push-by-digest=true,oci-mediatypes=true
           platforms: linux/${{ matrix.architecture }}
           build-args: |
             GIT_VERSION_TAG=${{ github.event.release.tag_name }}
