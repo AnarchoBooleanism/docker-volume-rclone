@@ -27,7 +27,7 @@ jobs:
         run: |
           printf "## Release ready!\n\n" >> $GITHUB_STEP_SUMMARY
           printf "The link to the release (%s) is: %s\n\n" \
-            "${{ steps.create-release.outputs.id }}"
+            "${{ steps.create-release.outputs.id }}" \
             "${{ steps.create-release.outputs.url }}" \
             >> $GITHUB_STEP_SUMMARY
           printf "In order for the Docker build and push workflow to commence, \
