@@ -51,7 +51,7 @@ jobs:
           context: .
           file: ./Dockerfile
           platforms: linux/${{ matrix.architecture }}
-          outputs: type=oci,dest=${{ runner.temp }}/image.tar
+          outputs: type=oci,dest=${{ runner.temp }}/oci-image-${{ matrix.architecture }}.tar
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
