@@ -111,7 +111,9 @@ jobs:
           docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
             $(printf "${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}@sha256:%s " *)
           
-          digest=$(docker buildx imagetools inspect ${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}:${{ steps.meta.outputs.version }})
+          digest=$(docker buildx imagetools inspect \
+            ${{ env.REGISTRY }}/${IMAGE_NAME_LOWER}:${{ steps.meta.outputs.version }} \
+            --format '{{json .Manifest.Digest}}' | sed 's/^"//;s/"$//' )
           printf "digest=%s\n" "$digest" >> $GITHUB_ENV
           printf "Digest is: %s\n" "$digest"
       - name: Generate artifact attestation
