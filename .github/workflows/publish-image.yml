@@ -53,7 +53,7 @@ jobs:
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
           build-args: |
-            GIT_VERSION_TAG=${{ github.event.release.tag_name }}
+            GIT_VERSION_TAG=${{ env.RELEASE_VERSION }}
             GIT_VERSION_HASH=${{ github.sha }}
           # build-args: |
           #   GIT_VERSION_TAG=${{ env.RELEASE_VERSION }}
@@ -101,6 +101,7 @@ jobs:
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
+            type=raw,value=${{ env.RELEASE_VERSION }}
             type=semver,pattern=v{{version}}
             type=semver,pattern=v{{major}}.{{minor}}
             type=semver,pattern=v{{major}}
